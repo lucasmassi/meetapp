@@ -2,3 +2,4 @@
 /backend/__tests__/coverage
 /backend/.env
 /backend/.env.test
+/backend/tmp/uploads/
