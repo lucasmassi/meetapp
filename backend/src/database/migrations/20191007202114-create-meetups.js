@@ -13,7 +13,7 @@ module.exports = {
       },
       description: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       address: {
         type: Sequelize.STRING,
