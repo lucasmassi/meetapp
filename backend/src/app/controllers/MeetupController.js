@@ -1,5 +1,14 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, subHours } from 'date-fns';
+import {
+  startOfDay,
+  endOfDay,
+  format,
+  startOfHour,
+  parseISO,
+  isBefore,
+  subHours
+} from 'date-fns';
+import { Op } from 'sequelize';
 
 import Meetup from '../models/Meetup';
 import User from '../models/User';
@@ -7,13 +16,20 @@ import File from '../models/File';
 
 class MeetupController {
   async index(req, res) {
-    const { page = 1 } = req.query;
+    const { date, page = 1 } = req.query;
+
+    const searchDate = Number(date);
 
     const meetups = await Meetup.findAll({
-      where: { user_id: req.userId, canceled_at: null },
+      where: date ? {
+        user_id: req.userId,
+        date: {
+          [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
+        }
+      } : { user_id: req.userId },
       order: ['date'],
-      limit: 20,
-      offset: (page - 1) * 20,
+      limit: 10,
+      offset: (page - 1) * 10,
       attributes: ['id', 'date', 'title', 'description', 'address', 'past'],
       include: [
         {
@@ -27,6 +43,11 @@ class MeetupController {
             }
           ]
         },
+        {
+          model: File,
+          as: 'file',
+          attributes: ['name', 'path', 'url']
+        }
       ],
     })
 
@@ -61,7 +82,6 @@ class MeetupController {
     const checkAvailability = await Meetup.findOne({
       where: {
         user_id,
-        canceled_at: null,
         date: hourStart,
       },
     });
@@ -95,6 +115,10 @@ class MeetupController {
 
     const meetup = await Meetup.findByPk(req.params.id);
 
+    if (meetup.canceled_at) {
+      return res.status(400).json({ error: 'This meetup has already been canceled' })
+    }
+
     if (meetup.user_id !== req.userId) {
       return res.status(400).json({ error: 'You do not have permission for updated this meetup' })
     }
@@ -121,9 +145,9 @@ class MeetupController {
       ],
     });
 
-    if (meetup && meetup.canceled_at) {
+    if (meetup.past) {
       return res.status(401).json({
-        error: 'The appointment is already canceled'
+        error: 'The meetup has already past'
       })
     }
 
@@ -133,11 +157,9 @@ class MeetupController {
       });
     }
 
-    meetup.canceled_at = new Date();
+    await meetup.destroy();
 
-    await meetup.save();
-
-    return res.json(meetup);
+    return res.json({ success: 'Meetup deleted with success' });
   }
 }
 
