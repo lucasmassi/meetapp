@@ -39,6 +39,7 @@ class MeetupController {
           include: [
             {
               model: File,
+              as: 'avatar',
               attributes: ['name', 'path', 'url']
             }
           ]

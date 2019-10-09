@@ -1,4 +1,10 @@
 import * as Yup from 'yup';
+import {
+  startOfDay,
+  endOfDay,
+  getTime,
+} from 'date-fns';
+import { Op } from 'sequelize';
 
 import Subscription from '../models/Subscription';
 import Meetup from '../models/Meetup';
@@ -70,17 +76,24 @@ class SubscriptionController {
       return res.status(400).json({ erro: 'This meetup is past' });
     }
 
-    const compareDate = Number(meetup.date);
+    const compareDate = Number(getTime(meetup.date));
 
     // O usuário não pode se inscrever em dois meetups que acontecem no mesmo horário.
-    const existingMeetup = await Subscription.findAll({
+    const newMeetup = await Meetup.findOne({
+      where: {
+        id: meetup_id,
+        date: {
+          [Op.between]: [startOfDay(compareDate), endOfDay(compareDate)]
+        }
+      }
+    });
+
+    const existingMeetup = await Subscription.findOne({
       where: {
         user_id,
-        meetup_id: await Meetup.findAll({
-          where: { id: meetup.id, date: { [Op.between]: [startOfDay(compareDate), endOfDay(compareDate)] } }
-        }).id
+        meetup_id: newMeetup.id,
       }
-    })
+    });
 
     if (existingMeetup) {
       return res.status(400).json({ erro: 'You are subscribed to a meetup at this time' });
