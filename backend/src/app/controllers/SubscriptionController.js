@@ -11,126 +11,157 @@ import Meetup from '../models/Meetup';
 import User from '../models/User';
 import File from '../models/File';
 
+import Mail from '../../lib/Mail';
+
 class SubscriptionController {
   async index(req, res) {
-    const { page = 1 } = req.query;
 
-    const subscriptions = await Subscription.findAll({
-      where: { user_id: req.userId },
-      order: ['created_at'],
-      limit: 20,
-      offset: (page - 1) * 20,
-      attributes: ['id', 'canceled_at'],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['name', 'email'],
-          include: [
-            {
-              model: File,
-              as: 'avatar',
-              attributes: ['name', 'path', 'url']
-            }
-          ]
-        },
-        {
-          model: Meetup,
-          as: 'meetup',
-          attributes: ['title', 'description', 'date'],
-          include: [
-            {
-              model: File,
-              as: 'file',
-              attributes: ['name', 'path', 'url']
-            }
-          ]
-        },
-      ],
-    })
+    try {
+      const { page = 1 } = req.query;
 
-    return res.json(subscriptions);
+      const subscriptions = await Subscription.findAll({
+        where: { user_id: req.userId },
+        order: ['created_at'],
+        limit: 20,
+        offset: (page - 1) * 20,
+        attributes: ['id', 'canceled_at'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url']
+              }
+            ]
+          },
+          {
+            model: Meetup,
+            as: 'meetup',
+            attributes: ['title', 'description', 'date'],
+            include: [
+              {
+                model: File,
+                as: 'file',
+                attributes: ['name', 'path', 'url']
+              }
+            ]
+          },
+        ],
+      })
+
+      return res.json(subscriptions);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
   async store(req, res) {
-    const schema = Yup.object().shape({
-      meetup_id: Yup.number().required()
-    });
+    try {
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
+      const schema = Yup.object().shape({
+        meetup_id: Yup.number().required()
+      });
 
-    const user_id = req.userId;
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
 
-    const { meetup_id } = req.body;
+      const user_id = req.userId;
 
-    const meetup = await Meetup.findByPk(meetup_id);
+      const { meetup_id } = req.body;
 
-    // O usuário deve poder se inscrever em meetups que não organiza.
-    if (meetup.user_id === user_id) {
-      return res.status(400).json({ erro: 'You do not subscribe in this meetup, your is organizer' });
-    }
-    // O usuário não pode se inscrever em meetups que já aconteceram.
-    if (meetup.past) {
-      return res.status(400).json({ erro: 'This meetup is past' });
-    }
+      const meetup = await Meetup.findByPk(meetup_id);
 
-    const compareDate = Number(getTime(meetup.date));
+      // O usuário deve poder se inscrever em meetups que não organiza.
+      if (meetup.user_id === user_id) {
+        return res.status(400).json({ erro: 'You do not subscribe in this meetup, your is organizer' });
+      }
+      // O usuário não pode se inscrever em meetups que já aconteceram.
+      if (meetup.past) {
+        return res.status(400).json({ erro: 'This meetup is past' });
+      }
 
-    // O usuário não pode se inscrever em dois meetups que acontecem no mesmo horário.
-    const newMeetup = await Meetup.findOne({
-      where: {
-        id: meetup_id,
-        date: {
-          [Op.between]: [startOfDay(compareDate), endOfDay(compareDate)]
+      const compareDate = Number(getTime(meetup.date));
+
+      // O usuário não pode se inscrever em dois meetups que acontecem no mesmo horário.
+      const newMeetup = await Meetup.findOne({
+        where: {
+          id: meetup_id,
+          date: {
+            [Op.between]: [startOfDay(compareDate), endOfDay(compareDate)]
+          }
         }
+      });
+
+      const existingMeetup = await Subscription.findOne({
+        where: {
+          user_id,
+          meetup_id: newMeetup.id,
+        }
+      });
+
+      if (existingMeetup) {
+        return res.status(400).json({ erro: 'You are subscribed to a meetup at this time' });
       }
-    });
 
-    const existingMeetup = await Subscription.findOne({
-      where: {
-        user_id,
-        meetup_id: newMeetup.id,
+      const checkAvailability = await Subscription.findOne({
+        where: {
+          user_id,
+          meetup_id,
+        },
+      });
+
+      // O usuário não pode se inscrever no mesmo meetup duas vezes.
+      if (checkAvailability) {
+        return res.status(400).json({ erro: 'You are already subscribed to this meetup' });
       }
-    });
 
-    if (existingMeetup) {
-      return res.status(400).json({ erro: 'You are subscribed to a meetup at this time' });
-    }
-
-    const checkAvailability = await Subscription.findOne({
-      where: {
+      const subscription = await Subscription.create({
         user_id,
         meetup_id,
-      },
-    });
+      });
 
-    // O usuário não pode se inscrever no mesmo meetup duas vezes.
-    if (checkAvailability) {
-      return res.status(400).json({ erro: 'You are already subscribed to this meetup' });
+      const userKey = await User.findByPk(meetup.user_id);
+      const user = await User.findByPk(subscription.user_id);
+
+      await Mail.sendMail({
+        to: `${userKey.name} <${userKey.email}>`,
+        subject: 'Inscrição efetuada',
+        template: 'subscription',
+        context: {
+          meetup: meetup.title,
+          user: userKey.name,
+          subscriberName: user.name,
+          subscriberEmail: user.email,
+        },
+      });
+
+      return res.json(subscription);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
     }
-
-    const subscription = await Subscription.create({
-      user_id,
-      meetup_id,
-    });
-
-    return res.json(subscription);
   }
 
   async delete(req, res) {
-    const subscription = await Subscription.findByPk(req.params.id);
+    try {
+      const subscription = await Subscription.findByPk(req.params.id);
 
-    if (subscription.user_id !== req.userId) {
-      return res.status(401).json({
-        error: "You don't have permission to cancel this meetup"
-      });
+      if (subscription.user_id !== req.userId) {
+        return res.status(401).json({
+          error: "You don't have permission to cancel this meetup"
+        });
+      }
+
+      await subscription.destroy();
+
+      return res.json({ success: 'Subscription deleted with success' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
     }
-
-    await subscription.destroy();
-
-    return res.json({ success: 'Subscription deleted with success' });
   }
 }
 

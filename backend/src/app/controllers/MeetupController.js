@@ -2,11 +2,9 @@ import * as Yup from 'yup';
 import {
   startOfDay,
   endOfDay,
-  format,
   startOfHour,
   parseISO,
   isBefore,
-  subHours
 } from 'date-fns';
 import { Op } from 'sequelize';
 
@@ -16,151 +14,169 @@ import File from '../models/File';
 
 class MeetupController {
   async index(req, res) {
-    const { date, page = 1 } = req.query;
+    try {
 
-    const searchDate = Number(date);
+      const { date, page = 1 } = req.query;
 
-    const meetups = await Meetup.findAll({
-      where: date ? {
-        user_id: req.userId,
-        date: {
-          [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
-        }
-      } : { user_id: req.userId },
-      order: ['date'],
-      limit: 10,
-      offset: (page - 1) * 10,
-      attributes: ['id', 'date', 'title', 'description', 'address', 'past'],
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['name', 'email'],
-          include: [
-            {
-              model: File,
-              as: 'avatar',
-              attributes: ['name', 'path', 'url']
-            }
-          ]
-        },
-        {
-          model: File,
-          as: 'file',
-          attributes: ['name', 'path', 'url']
-        }
-      ],
-    })
+      const searchDate = Number(date);
 
-    return res.json(meetups);
+      const meetups = await Meetup.findAll({
+        where: date ? {
+          user_id: req.userId,
+          date: {
+            [Op.between]: [startOfDay(searchDate), endOfDay(searchDate)]
+          }
+        } : { user_id: req.userId },
+        order: ['date'],
+        limit: 10,
+        offset: (page - 1) * 10,
+        attributes: ['id', 'date', 'title', 'description', 'address', 'past'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url']
+              }
+            ]
+          },
+          {
+            model: File,
+            as: 'file',
+            attributes: ['name', 'path', 'url']
+          }
+        ],
+      })
+
+      return res.json(meetups);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
   async store(req, res) {
-    const schema = Yup.object().shape({
-      title: Yup.string().max(50).required(),
-      description: Yup.string().required(),
-      address: Yup.string().required(),
-      date: Yup.date().required(),
-    });
+    try {
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
+      const schema = Yup.object().shape({
+        title: Yup.string().max(50).required(),
+        description: Yup.string().required(),
+        address: Yup.string().required(),
+        date: Yup.date().required(),
+      });
 
-    const user_id = req.userId;
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
 
-    const { date, title, description, address } = req.body;
+      const user_id = req.userId;
 
-    /**
-     * Check for past dates
-     */
-    const hourStart = startOfHour(parseISO(date));
+      const { date, title, description, address } = req.body;
 
-    if (isBefore(hourStart, new Date())) {
-      return res.status(400).json({ error: 'Past dates are not permitted' });
-    }
+      /**
+       * Check for past dates
+       */
+      const hourStart = startOfHour(parseISO(date));
 
-    const checkAvailability = await Meetup.findOne({
-      where: {
+      if (isBefore(hourStart, new Date())) {
+        return res.status(400).json({ error: 'Past dates are not permitted' });
+      }
+
+      const checkAvailability = await Meetup.findOne({
+        where: {
+          user_id,
+          date: hourStart,
+        },
+      });
+
+      if (checkAvailability) {
+        return res.status(400).json({ erro: 'Meetup date is not available' });
+      }
+
+      const meetup = await Meetup.create({
         user_id,
-        date: hourStart,
-      },
-    });
+        title,
+        description,
+        address,
+        date,
+      });
 
-    if (checkAvailability) {
-      return res.status(400).json({ erro: 'Meetup date is not available' });
+      return res.json(meetup);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
     }
-
-    const meetup = await Meetup.create({
-      user_id,
-      title,
-      description,
-      address,
-      date,
-    });
-
-    return res.json(meetup);
   }
 
   async update(req, res) {
-    const schema = Yup.object().shape({
-      title: Yup.string().max(50),
-      description: Yup.string(),
-      address: Yup.string(),
-      date: Yup.date(),
-    });
+    try {
+      const schema = Yup.object().shape({
+        title: Yup.string().max(50),
+        description: Yup.string(),
+        address: Yup.string(),
+        date: Yup.date(),
+      });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
+
+      const meetup = await Meetup.findByPk(req.params.id);
+
+      if (meetup.canceled_at) {
+        return res.status(400).json({ error: 'This meetup has already been canceled' })
+      }
+
+      if (meetup.user_id !== req.userId) {
+        return res.status(400).json({ error: 'You do not have permission for updated this meetup' })
+      }
+
+      if (meetup.past) {
+        return res.status(400).json({ error: 'This meetup cannot be updated because it is already finalized' })
+      }
+
+      meetup.update({
+        ...req.body
+      });
+
+      return res.send(meetup);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
     }
-
-    const meetup = await Meetup.findByPk(req.params.id);
-
-    if (meetup.canceled_at) {
-      return res.status(400).json({ error: 'This meetup has already been canceled' })
-    }
-
-    if (meetup.user_id !== req.userId) {
-      return res.status(400).json({ error: 'You do not have permission for updated this meetup' })
-    }
-
-    if (meetup.past) {
-      return res.status(400).json({ error: 'This meetup cannot be updated because it is already finalized' })
-    }
-
-    meetup.update({
-      ...req.body
-    });
-
-    return res.send(meetup);
   }
 
   async delete(req, res) {
-    const meetup = await Meetup.findByPk(req.params.id, {
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['name', 'email'],
-        },
-      ],
-    });
-
-    if (meetup.past) {
-      return res.status(401).json({
-        error: 'The meetup has already past'
-      })
-    }
-
-    if (meetup.user_id !== req.userId) {
-      return res.status(401).json({
-        error: "You don't have permission to cancel this meetup"
+    try {
+      const meetup = await Meetup.findByPk(req.params.id, {
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['name', 'email'],
+          },
+        ],
       });
+
+      if (meetup.past) {
+        return res.status(401).json({
+          error: 'The meetup has already past'
+        })
+      }
+
+      if (meetup.user_id !== req.userId) {
+        return res.status(401).json({
+          error: "You don't have permission to cancel this meetup"
+        });
+      }
+
+      await meetup.destroy();
+
+      return res.json({ success: 'Meetup deleted with success' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
     }
-
-    await meetup.destroy();
-
-    return res.json({ success: 'Meetup deleted with success' });
   }
 }
 
