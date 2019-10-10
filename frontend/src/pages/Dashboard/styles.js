@@ -4,156 +4,95 @@ import { darken } from 'polished';
 export const Container = styled.div`
   padding: 0 30px;
   margin-top: 20px;
-  /* background: linear-gradient(-90deg, #0f0f17, #0f0f17); */
-`;
 
-export const ContentChart = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 25px;
+  ul {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    margin-top: 35px;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 15px;
+    margin-bottom: 35px;
 
-  line {
-    stroke: #0f0f17;
-  }
-
-  span {
-    color: #999;
-  }
-`;
-
-export const ContentCard = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 20px;
-  max-width: 900px;
-  margin: 0 auto;
-  padding-bottom: 20px;
-
-  div {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    border-radius: 4px;
-    padding: 20px;
-
-    &:nth-child(1) {
-      background: linear-gradient(-180deg, #ffa6ea, #feca7f);
-    }
-    &:nth-child(2) {
-      background: linear-gradient(-180deg, #79d9ff, #37f1a6);
-    }
-    &:nth-child(3) {
-      background: linear-gradient(-180deg, #7aa1fe, #e8a3fe);
-
-      strong {
-        text-transform: capitalize;
-      }
-    }
-
-    h1 {
-      font-size: 18px;
-      color: #fff;
-      margin-bottom: 15px;
-    }
-
-    h4 {
-      font-weight: normal;
-      margin-bottom: 15px;
-    }
-
-    strong {
-      font-size: 13px;
-      line-height: 20px;
-      color: #fff;
-      margin-top: 5px;
-    }
-
-    span {
-      margin-bottom: 20px;
-      font-size: 35px;
-      color: #fff;
-    }
-  }
-`;
-
-export const Content = styled.div`
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  nav {
-    display: flex;
-    align-items: center;
-
-    a {
+    li {
+      max-width: 900px;
       display: flex;
+      justify-content: center;
       align-items: center;
-      font-size: 15px;
-      color: #999999;
-      margin-right: 30px;
 
-      svg {
-        margin-right: 7px;
-        transition: 0.4s;
-      }
+      a {
+        width: 100%;
+        padding: 20px;
+        background: rgba(36, 45, 54,.6);
+        border-radius: 5px;
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+        color: #fff;
 
-      &:hover {
-        svg {
-          color: ${darken(0.2, '#6756b8')};
-          transition: 0.4s;
+        h3 {
+          font-size: 20px;
         }
+
+        span {
+          justify-content: center;
+          align-items: center;
+          display: flex;
+          color: #eee;
+
+          svg {
+            margin-left: 10px;
+            font-size: 20px;
+            color: #fff;
+          }
+        }
+
+        &:hover {
+          background: linear-gradient(-190deg, #2d3a47, #242d36);
+        }
+
       }
     }
 
-    span {
-      float: left;
-      display: block;
-    }
-  }
-
-  aside {
-    display: flex;
-    align-items: center;
   }
 `;
 
-export const Profile = styled.div`
-  display: flex;
-  margin-left: 20px;
-  padding-left: 20px;
-  align-items: center;
-  flex-direction: row;
-
-  div {
-    text-align: right;
-
-    a {
-      margin-top: 2px;
-      color: #999;
-      font-size: 14px;
-      font-weight: bold;
-      transition: 0.4s;
-
-      img {
-        border-radius: 35px;
-        margin-top: 28px;
-      }
-    }
-  }
-`;
-
-export const Today = styled.span`
+export const Top = styled.div`
   max-width: 900px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #fff;
-  font-size: 25px;
-  margin-top: -25px;
+  margin-top: 35px;
+
+  h1 {
+    color: #fff;
+  }
+
+  button {
+    padding: 15px;
+    border-radius: 5px;
+    background: #2ea2ef;
+    color: #fff;
+    border: 2px solid #2ea2ef;
+    font-size: 15px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    transition: 0.3s;
+
+    svg {
+      margin-right: 10px;
+      font-size: 20px;
+    }
+
+    &:hover {
+      background: #0f0f17;
+      border: 2px solid #2ea2ef;
+      color: #2ea2ef;
+      transition: 0.3s;
+    }
+
+  }
+
 `;

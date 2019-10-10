@@ -2,12 +2,12 @@ import styled from 'styled-components';
 import { darken } from 'polished';
 
 export const Container = styled.div`
-  background: ${darken(0.3, 'rgba(15, 15, 23, 0.5)')};
+  background: rgba(36, 45, 54,.6);
   padding: 0 30px;
 `;
 
 export const Content = styled.div`
-  height: 64px;
+  height: 80px;
   max-width: 900px;
   margin: 0 auto;
   display: flex;
@@ -23,7 +23,7 @@ export const Content = styled.div`
       align-items: center;
       font-weight: bold;
       font-size: 14px;
-      color: #54bbfe;
+      color: #2ea2ef;
       transition: 0.4s;
 
       svg {
@@ -31,7 +31,7 @@ export const Content = styled.div`
       }
 
       &:hover {
-        color: ${darken(0.3, '#54bbfe')};
+        color: ${darken(0.3, '#2ea2ef')};
         transition: 0.4s;
       }
     }
@@ -50,21 +50,40 @@ export const Profile = styled.div`
   align-items: center;
   flex-direction: row;
 
+  button {
+    display: flex;
+    padding: 10px 27px 10px 27px;
+    margin-left: 22px;
+    border-radius: 3px;
+    background: #2ea2ef;
+    color: #fff;
+    border: 2px solid #2ea2ef;
+    transition: 0.3s;
+
+    &:hover {
+      background: #0f0f17;
+      border: 2px solid #2ea2ef;
+      color: #2ea2ef;
+      transition: 0.3s;
+    }
+  }
+
   div {
     text-align: right;
-    margin-right: -40px;
+
+    h3 {
+      color: #fff;
+    }
 
     a {
       margin-top: 2px;
-      margin-right: 40px;
       font-size: 12px;
-      color: #999;
+      color: #eee;
       font-size: 14px;
-      font-weight: bold;
       transition: 0.4s;
 
       &:hover {
-        color: ${darken(0.3, '#999')};
+        color: ${darken(0.3, '#eee')};
         transition: 0.4s;
       }
     }

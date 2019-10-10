@@ -33,7 +33,7 @@ export const Container = styled.div`
       margin-bottom: 10px;
 
       &:focus {
-        border-color: #6756b8;
+        border-color: #54bbfe;
         transition: 0.4s;
       }
 
@@ -96,7 +96,7 @@ export const SubmitButton = styled.button.attrs(props => ({
   type: 'submit',
   disabled: props.loading ? true : false,
 }))`
-  background: #6756b8;
+  background: #2ea2ef;
   margin-top: 20px;
   color: rgb(25, 24, 31);
   border: 0;
@@ -116,8 +116,8 @@ export const SubmitButton = styled.button.attrs(props => ({
   }
 
   &:hover {
-    border-color: #6756b8;
-    background: ${darken(0.05, '#6756b8')};
+    border-color: #2ea2ef;
+    background: ${darken(0.05, '#54bbfe')};
     transition: 0.5s;
   }
 
