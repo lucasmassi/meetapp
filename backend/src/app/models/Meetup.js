@@ -1,5 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
 import { isBefore, subHours } from 'date-fns';
+import { format } from 'date-fns';
+import pt from 'date-fns/locale/pt';
 
 class Meetup extends Model {
   static init(sequelize) {
@@ -9,6 +11,16 @@ class Meetup extends Model {
         description: Sequelize.STRING,
         address: Sequelize.STRING,
         date: Sequelize.DATE,
+        formatted_date: {
+          type: Sequelize.VIRTUAL,
+          get() {
+            return format(
+              this.date,
+              "dd 'de' MMMM', ás' hh'h'",
+              { locale: pt }
+            );
+          },
+        },
         past: {
           type: Sequelize.VIRTUAL,
           get() {
