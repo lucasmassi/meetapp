@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdAddCircleOutline } from 'react-icons/md';
 import { FaArrowRight } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,17 @@ import { Container, Top } from './styles';
 import api from '../../services/api';
 
 export default function Dashboard() {
+  const [meetups, setMeetups] = useState([]);
+
+  useEffect(() => {
+    async function loadMeetups() {
+      const response = await api.get(`meetups/`);
+
+      setMeetups(response.data);
+    }
+
+    loadMeetups();
+  }, []);
 
   return (
     <>
@@ -17,19 +28,14 @@ export default function Dashboard() {
           <button type="button" > <MdAddCircleOutline /> Novo meetup</button>
         </Top>
         <ul>
-          <li>
-            <Link to="/">
-              <h3>Meetup de React Native</h3>
-              <span>24 de Junho, ás 20h <FaArrowRight /></span>
-            </Link>
-          </li>
-
-          <li>
-            <Link to="/">
-              <h3>Meetup de React Native</h3>
-              <span>24 de Junho, ás 20h <FaArrowRight /></span>
-            </Link>
-          </li>
+          {meetups.map(meetup => (
+            <li key={meetup.indexOf}>
+              <Link to="/">
+                <h3>{meetup.title}</h3>
+                <span>{meetup.formatted_date} <FaArrowRight /></span>
+              </Link>
+            </li>
+          ))}
 
         </ul>
       </Container>

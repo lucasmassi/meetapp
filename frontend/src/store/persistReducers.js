@@ -4,9 +4,9 @@ import { persistReducer } from 'redux-persist';
 export default reducers => {
   const persistedReducer = persistReducer(
     {
-      key: 'orbita',
+      key: 'meetup',
       storage,
-      whitelist: ['auth', 'user'],
+      whitelist: ['auth', 'user', 'meetup'],
     },
     reducers
   );
