@@ -29,8 +29,8 @@ export default function Dashboard() {
         </Top>
         <ul>
           {meetups.map(meetup => (
-            <li key={meetup.indexOf}>
-              <Link to="/">
+            <li key={meetup.title}>
+              <Link to={`/meetup/${meetup.id}`}>
                 <h3>{meetup.title}</h3>
                 <span>{meetup.formatted_date} <FaArrowRight /></span>
               </Link>
