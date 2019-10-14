@@ -1,35 +1,52 @@
 import React, { useState, useEffect } from 'react';
+import { MdEdit, MdDelete } from 'react-icons/md';
+import { FiCalendar, FiMapPin } from 'react-icons/fi';
 
 import api from '../../../services/api';
 
-import { Container } from './styles';
+import { Container, Top, Body } from './styles';
 
-export default function Show({ props }) {
+export default function Show(props) {
   const [meetup, setMeetup] = useState([]);
 
   useEffect(() => {
     async function loadMeetup() {
-      const response = await api.get(`meetups/`);
+      const id = props.match.params.id;
 
-      const meetup = response.data.map(r => {
-        if (r.id === 16) {
-          return r;
-        }
-      });
+      const response = await api.get(`meetups/${id}`);
 
-      setMeetup(meetup[0]);
+      console.log(response.data);
+
+      setMeetup(response.data);
     }
 
     loadMeetup();
   }, []);
 
-  console.log(meetup);
-
   return (
-    <Container>
-      <h3>{meetup.title}</h3>
-      <h3>{meetup.description}</h3>
-      <h3>{meetup.date}</h3>
-    </Container >
+    <>
+      <Container>
+        <Top>
+          <h1>{meetup.title}</h1>
+          <div>
+            <button type="button"> <MdEdit /> Editar</button>
+            <button type="button"> <MdDelete /> Cancelar</button>
+          </div>
+        </Top>
+        <Body>
+          <div>
+            {meetup.banner_id && (
+              <img src={meetup.file.url} alt="" />
+            )}
+            <p>{meetup.description}</p>
+          </div>
+          <div>
+            <span><FiCalendar /> {meetup.formatted_date}</span>
+            <span><FiMapPin /> {meetup.address}</span>
+          </div>
+        </Body>
+
+      </Container>
+    </>
   );
 }

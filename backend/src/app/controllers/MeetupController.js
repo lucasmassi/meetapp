@@ -53,6 +53,7 @@ class MeetupController {
       })
 
       return res.json(meetups);
+
     } catch (err) {
       return res.status(500).json({ error: 'Internal server error' });
     }
@@ -137,11 +138,10 @@ class MeetupController {
         return res.status(400).json({ error: 'This meetup cannot be updated because it is already finalized' })
       }
 
-      meetup.update({
-        ...req.body
-      });
+      meetup.update(req.body);
 
       return res.send(meetup);
+
     } catch (err) {
       return res.status(500).json({ error: 'Internal server error' });
     }
@@ -174,6 +174,45 @@ class MeetupController {
       await meetup.destroy();
 
       return res.json({ success: 'Meetup deleted with success' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async findById(req, res) {
+    try {
+      const meetupWithBanner = await Meetup.findOne({
+        where: {
+          id: req.params.id,
+        },
+        attributes: ['id', 'date', 'title', 'description', 'address', 'past', 'formatted_date', 'user_id', 'banner_id'],
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['name', 'path', 'url']
+              }
+            ]
+          },
+          {
+            model: File,
+            as: 'file',
+            attributes: ['name', 'path', 'url']
+          }
+        ]
+      });
+      //const meetup = await Meetup.findByPk(req.params.id);
+
+      if (meetupWithBanner.user_id !== req.userId) {
+        return res.status(400).json({ error: 'You do not have permission for updated this meetup' })
+      }
+
+      return res.send(meetupWithBanner);
     } catch (err) {
       return res.status(500).json({ error: 'Internal server error' });
     }
