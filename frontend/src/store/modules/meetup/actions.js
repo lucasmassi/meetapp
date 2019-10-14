@@ -17,9 +17,3 @@ export function updateMeetupFailure() {
     type: '@meetup/UPDATE_MEETUP_REQUEST',
   };
 }
-
-export function showMeetupFailure(id) {
-  return {
-    type: '@meetup/SHOW_MEETUP_REQUEST',
-  };
-}

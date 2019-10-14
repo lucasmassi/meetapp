@@ -69,7 +69,7 @@ export const Top = styled.div`
   }
 
   button {
-    padding: 15px;
+    padding: 5px 10px 5px 10px;
     border-radius: 5px;
     background: #2ea2ef;
     color: #fff;

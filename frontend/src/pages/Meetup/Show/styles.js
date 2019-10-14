@@ -78,6 +78,7 @@ export const Body = styled.div`
       width: 100%;
       height: 300px;
       margin-bottom: 20px;
+      border-radius: 3px;
     }
 
     p {

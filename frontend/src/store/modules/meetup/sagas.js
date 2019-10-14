@@ -23,4 +23,23 @@ export function* updateMeetup({ payload }) {
   }
 }
 
+export function* deleteMeetup({ payload }) {
+  try {
+    const { id } = payload.data;
+
+    const meetup = Object.assign(
+      { id }
+    );
+
+    const response = yield call(api.delete, 'meetup', meetup);
+
+    toast.success('Meetup deletado com sucesso');
+
+    yield put(updateMeetupSuccess(response.data));
+  } catch (err) {
+    toast.error('Erro ao atualizar meetup, confira os dados');
+    yield put(updateMeetupFailure);
+  }
+}
+
 export default all([takeLatest('@meetup/UPDATE_MEETUP_REQUEST', updateMeetup)]);

@@ -3,6 +3,7 @@ import { MdEdit, MdDelete } from 'react-icons/md';
 import { FiCalendar, FiMapPin } from 'react-icons/fi';
 
 import api from '../../../services/api';
+import history from '../../../services/history';
 
 import { Container, Top, Body } from './styles';
 
@@ -14,8 +15,6 @@ export default function Show(props) {
       const id = props.match.params.id;
 
       const response = await api.get(`meetups/${id}`);
-
-      console.log(response.data);
 
       setMeetup(response.data);
     }
@@ -29,8 +28,16 @@ export default function Show(props) {
         <Top>
           <h1>{meetup.title}</h1>
           <div>
-            <button type="button"> <MdEdit /> Editar</button>
-            <button type="button"> <MdDelete /> Cancelar</button>
+            <button type="button" onClick={() => history.push(`meetup/${meetup.id}`)} > <MdEdit /> Editar</button>
+            {meetup.cancelable && (
+            <button
+              type="button"
+            >
+              <MdDelete />
+              Cancelar
+            </button>
+            )}
+            //<button type="button"> <MdDelete /> Cancelar</button>
           </div>
         </Top>
         <Body>
