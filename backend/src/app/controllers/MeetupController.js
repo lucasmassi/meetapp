@@ -138,7 +138,7 @@ class MeetupController {
         return res.status(400).json({ error: 'This meetup cannot be updated because it is already finalized' })
       }
 
-      meetup.update(req.body);
+      await meetup.update({ ...req.body });
 
       return res.send(meetup);
 

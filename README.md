@@ -2,19 +2,19 @@
 Desafio final Bootcamp Rocketseat
 
 ## 📱 Mobile (React Native)
-- In construction
+- Em construção
 
 ## 💻 Web (ReactJS)
-- In construction
+- Em construção
 
 ## 🔒 Backend (Node.js)
-- API Rest with (JWT)[https://github.com/lucasmassi/help-node-summary] authentication
-- Check field with (Yup)[https://github.com/lucasmassi/help-node-summary]
+- API Rest com autenticação (JWT)[https://github.com/lucasmassi/help-node-summary]
+- Validação dos campos com (Yup)[https://github.com/lucasmassi/help-node-summary]
 - Framework (Express)[https://github.com/lucasmassi/help-node-summary]
-- (Multer)[https://github.com/lucasmassi/help-node-summary] for manipulate images
+- (Multer)[https://github.com/lucasmassi/help-node-summary] para manipular imagens
 - (Sequelize ORM)[https://github.com/lucasmassi/help-node-summary]
-- (PostgreSQL)[https://github.com/lucasmassi/help-node-summary] database
-- (Date-fns)[https://github.com/lucasmassi/help-node-summary] for manipulate date
+- (PostgreSQL)[https://github.com/lucasmassi/help-node-summary] banco de dados
+- (Date-fns)[https://github.com/lucasmassi/help-node-summary] para manipular datas
 
 # 🔥 Run project
-- In construction
+- Em construção
