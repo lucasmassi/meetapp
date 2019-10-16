@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Container, Top } from './styles';
 
 import api from '../../services/api';
+import history from '../../services/history';
 
 export default function Dashboard() {
   const [meetups, setMeetups] = useState([]);
@@ -25,7 +26,7 @@ export default function Dashboard() {
       <Container>
         <Top>
           <h1>Meus meetups</h1>
-          <button type="button" > <MdAddCircleOutline /> Novo meetup</button>
+          <button type="button" onClick={() => history.push(`newMeetup`)} > <MdAddCircleOutline /> Novo meetup</button>
         </Top>
         <ul>
           {meetups.map(meetup => (

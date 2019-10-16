@@ -29,15 +29,14 @@ export default function Show(props) {
           <h1>{meetup.title}</h1>
           <div>
             <button type="button" onClick={() => history.push(`meetup/${meetup.id}`)} > <MdEdit /> Editar</button>
-            {meetup.cancelable && (
-            <button
-              type="button"
-            >
-              <MdDelete />
-              Cancelar
+            {!meetup.past && (
+              <button
+                type="button"
+              >
+                <MdDelete />
+                Cancelar
             </button>
             )}
-            //<button type="button"> <MdDelete /> Cancelar</button>
           </div>
         </Top>
         <Body>
