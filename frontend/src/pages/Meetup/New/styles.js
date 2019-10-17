@@ -45,38 +45,37 @@ export const Container = styled.div`
       align-self: flex-start;
       margin: 0 0 10px;
     }
+
+    button {
+      background: #2ea2ef;
+      margin-top: 20px;
+      color: rgb(25, 24, 31);
+      border: 0;
+      padding: 16px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 150px;
+      color: #fff;
+      transition: 0.5s;
+      font-size: 16px;
+      cursor: pointer;
+
+      &[disabled] {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+
+      &:hover {
+        border-color: #2ea2ef;
+        background: ${darken(0.05, '#2ea2ef')};
+        transition: 0.5s;
+      }
+
+      svg {
+        margin-right: 10px;
+      }
+    }
   }
 `;
-
-export const SubmitButton = styled.div`
-  background: #2ea2ef;
-  margin-top: 20px;
-  color: rgb(25, 24, 31);
-  border: 0;
-  padding: 16px;
-  border-radius: 4px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 150px;
-  color: #fff;
-  transition: 0.5s;
-  font-size: 16px;
-  cursor: pointer;
-
-  &[disabled] {
-    cursor: not-allowed;
-    opacity: 0.5;
-  }
-
-  &:hover {
-    border-color: #2ea2ef;
-    background: ${darken(0.05, '#2ea2ef')};
-    transition: 0.5s;
-  }
-
-  svg {
-    margin-right: 10px;
-  }
-`;
-

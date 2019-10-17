@@ -67,6 +67,7 @@ class MeetupController {
         description: Yup.string().required(),
         address: Yup.string().required(),
         date: Yup.date().required(),
+        banner_id: Yup.number().required(),
       });
 
       if (!(await schema.isValid(req.body))) {
@@ -75,7 +76,7 @@ class MeetupController {
 
       const user_id = req.userId;
 
-      const { date, title, description, address } = req.body;
+      const { date, title, description, address, banner_id } = req.body;
 
       /**
        * Check for past dates
@@ -103,6 +104,7 @@ class MeetupController {
         description,
         address,
         date,
+        banner_id
       });
 
       return res.json(meetup);

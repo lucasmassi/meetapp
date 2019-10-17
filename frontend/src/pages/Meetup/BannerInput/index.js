@@ -10,7 +10,7 @@ import { Container } from './styles';
 export default function BannerInput() {
   const { defaultValue, registerField } = useField('banner');
 
-  const [loading, setLoading] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(defaultValue && defaultValue.id);
   const [preview, setPreview] = useState(defaultValue && defaultValue.url);
 
@@ -27,7 +27,7 @@ export default function BannerInput() {
   }, [ref.current]);
 
   async function handleChange(e) {
-    setLoading(1);
+    setLoading(true);
     const data = new FormData();
 
     data.append('file', e.target.files[0]);
@@ -38,11 +38,11 @@ export default function BannerInput() {
 
     setFile(id);
     setPreview(url);
-    setLoading(0);
+    setLoading(false);
   }
 
   return (
-    <Container loading={loading}>
+    <Container>
       <label htmlFor="banner">
         {loading ? <FaSpinner syze={32} /> : (
           <>

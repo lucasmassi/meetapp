@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { FiCalendar, FiMapPin } from 'react-icons/fi';
+import { toast } from 'react-toastify';
 
 import api from '../../../services/api';
 import history from '../../../services/history';
@@ -22,16 +23,30 @@ export default function Show(props) {
     loadMeetup();
   }, []);
 
+  async function handleCancel(id) {
+    try {
+      await api.delete(`meetups/${id}`);
+
+      toast.success('Meetup canceled succesfully!');
+
+      history.push('/dashboard');
+
+    } catch (err) {
+      toast.error('Error canceling meetup, try again');
+    }
+  }
+
   return (
     <>
       <Container>
         <Top>
           <h1>{meetup.title}</h1>
           <div>
-            <button type="button" onClick={() => history.push(`meetup/${meetup.id}`)} > <MdEdit /> Editar</button>
+            <button type="button" onClick={() => history.push(`/editMeetup/${meetup.id}`)} > <MdEdit /> Editar</button>
             {!meetup.past && (
               <button
                 type="button"
+                onClick={() => handleCancel(meetup.id)}
               >
                 <MdDelete />
                 Cancelar
