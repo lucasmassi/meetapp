@@ -13,20 +13,20 @@ export function createMeetupFailure() {
 
 export function updateMeetupRequest(data) {
   return {
-    type: '@user/UPDATE_MEETUP_REQUEST',
+    type: '@meetup/UPDATE_MEETUP_REQUEST',
     payload: { data },
   };
 }
 
 export function updateMeetupSuccess(meetup) {
   return {
-    type: '@user/UPDATE_MEETUP_SUCCESS',
+    type: '@meetup/UPDATE_MEETUP_SUCCESS',
     payload: { meetup },
   };
 }
 
 export function updateMeetupFailure() {
   return {
-    type: '@user/UPDATE_MEETUP_REQUEST',
+    type: '@meetup/UPDATE_MEETUP_REQUEST',
   };
 }
